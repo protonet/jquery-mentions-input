@@ -15,21 +15,17 @@
   var defaultSettings = {
     triggerChar   : '@',
     onDataRequest : $.noop,
-    minChars      : 2,
-    showAvatars   : true,
-    elastic       : true,
+    minChars      : 1,
     classes       : {
       autoCompleteItemActive : "active"
     },
     templates     : {
       wrapper                    : _.template('<div class="mentions-input-box"></div>'),
       autocompleteList           : _.template('<div class="mentions-autocomplete-list"></div>'),
-      autocompleteListItem       : _.template('<li data-ref-id="<%= id %>" data-ref-type="<%= type %>" data-display="<%= display %>"><%= content %></li>'),
-      autocompleteListItemAvatar : _.template('<img src="<%= avatar %>" />'),
-      autocompleteListItemIcon   : _.template('<div class="icon <%= icon %>"></div>'),
+      autocompleteListItem       : _.template('<li><%= content %></li>'),
       mentionsOverlay            : _.template('<div class="mentions"><div></div></div>'),
-      mentionItemSyntax          : _.template('@[<%= value %>](<%= type %>:<%= id %>)'),
-      mentionItemHighlight       : _.template('<strong><span><%= value %></span></strong>')
+      mentionItemSyntax          : _.template('@[<%= value %>](<%= id %>)'),
+      mentionItemHighlight       : _.template('<strong><%= value %></strong>')
     }
   };
 
@@ -64,38 +60,28 @@
 
   var MentionsInput = function (settings) {
 
-    var domInput, elmInputBox, elmInputWrapper, elmAutocompleteList, elmWrapperBox, elmMentionsOverlay, elmActiveAutoCompleteItem;
+    var elmInputBox, elmInputWrapper, elmAutocompleteList, elmWrapperBox, elmMentionsOverlay, elmActiveAutoCompleteItem;
     var mentionsCollection = [];
     var autocompleteItemCollection = {};
     var inputBuffer = [];
     var currentDataQuery;
 
     settings = $.extend(true, {}, defaultSettings, settings );
-
-    function initTextarea() {
-      elmInputBox = $(domInput);
-
-      if (elmInputBox.attr('data-mentions-input') == 'true') {
-        return;
-      }
-
+    
+    function initWrapper() {
       elmInputWrapper = elmInputBox.parent();
       elmWrapperBox = $(settings.templates.wrapper());
       elmInputBox.wrapAll(elmWrapperBox);
       elmWrapperBox = elmInputWrapper.find('> div');
-
+    }
+    
+    function initTextarea() {
       elmInputBox.attr('data-mentions-input', 'true');
       elmInputBox.bind('keydown', onInputBoxKeyDown);
       elmInputBox.bind('keypress', onInputBoxKeyPress);
       elmInputBox.bind('input', onInputBoxInput);
       elmInputBox.bind('click', onInputBoxClick);
       elmInputBox.bind('blur', onInputBoxBlur);
-
-      // Elastic textareas, internal setting for the Dispora guys
-      if( settings.elastic ) {
-        elmInputBox.elastic();
-      }
-
     }
 
     function initAutocomplete() {
@@ -107,6 +93,11 @@
     function initMentionsOverlay() {
       elmMentionsOverlay = $(settings.templates.mentionsOverlay());
       elmMentionsOverlay.prependTo(elmWrapperBox);
+      
+      elmInputBox.bind('scroll', function() {
+        elmMentionsOverlay.scrollTop(elmInputBox.scrollTop());
+        elmMentionsOverlay.scrollLeft(elmInputBox.scrollLeft());
+      });
     }
 
     function updateValues() {
@@ -127,7 +118,8 @@
         mentionText = mentionText.replace(textSyntax, textHighlight);
       });
 
-      mentionText = mentionText.replace(/\n/g, '<br />');
+      mentionText = mentionText.replace(/\n/g, '<br>');
+      mentionText = mentionText.replace(/<br>$/g, '<br>&nbsp;');
       mentionText = mentionText.replace(/ {2}/g, '&nbsp; ');
 
       elmInputBox.data('messageText', syntaxMessage);
@@ -180,10 +172,10 @@
     }
 
     function getInputBoxValue() {
-      return $.trim(elmInputBox.val());
+      return elmInputBox.val();
     }
 
-    function onAutoCompleteItemClick(e) {
+    function onAutoCompleteItemClick() {
       var elmTarget = $(this);
       var mention = autocompleteItemCollection[elmTarget.attr('data-uid')];
 
@@ -192,15 +184,15 @@
       return false;
     }
 
-    function onInputBoxClick(e) {
+    function onInputBoxClick() {
       resetBuffer();
     }
 
-    function onInputBoxBlur(e) {
+    function onInputBoxBlur() {
       hideAutoComplete();
     }
 
-    function onInputBoxInput(e) {
+    function onInputBoxInput() {
       updateValues();
       updateMentionsCollection();
 
@@ -314,25 +306,13 @@
         autocompleteItemCollection[itemUid] = _.extend({}, item, {value: item.name});
 
         var elmListItem = $(settings.templates.autocompleteListItem({
-          'id'      : utils.htmlEncode(item.id),
-          'display' : utils.htmlEncode(item.name),
-          'type'    : utils.htmlEncode(item.type),
-          'content' : utils.highlightTerm(utils.htmlEncode((item.name)), query)
+          id      : utils.htmlEncode(item.id),
+          display : utils.htmlEncode(item.name),
+          content : utils.highlightTerm(utils.htmlEncode((item.name)), query)
         })).attr('data-uid', itemUid);
 
         if (index === 0) {
           selectAutoCompleteItem(elmListItem);
-        }
-
-        if (settings.showAvatars) {
-          var elmIcon;
-
-          if (item.avatar) {
-            elmIcon = $(settings.templates.autocompleteListItemAvatar({ avatar : item.avatar }));
-          } else {
-            elmIcon = $(settings.templates.autocompleteListItemIcon({ icon : item.icon }));
-          }
-          elmIcon.prependTo(elmListItem);
         }
         elmListItem = elmListItem.appendTo(elmDropDownList);
       });
@@ -360,10 +340,13 @@
     // Public methods
     return {
       init : function (domTarget) {
-
-        domInput = domTarget;
-
+        elmInputBox = $(domTarget);
+        if (elmInputBox.attr('data-mentions-input') == 'true') {
+          return;
+        }
+        
         initTextarea();
+        initWrapper();
         initAutocomplete();
         initMentionsOverlay();
         resetInput();

@@ -7,19 +7,17 @@
 .mentions-input-box textarea {
   width: 100%;
   display: block;
-  height: 18px;
   padding: 9px;
-  border: 1px solid #dcdcdc;
+  border: 0;
   border-radius:3px;
-  overflow: hidden;
   background: transparent;
   position: relative;
   outline: 0;
+  overflow: auto;
+  height: 100px;
   resize: none;
-
-  -webkit-box-sizing: border-box;
-     -moz-box-sizing: border-box;
-          box-sizing: border-box;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
 }
 
 .mentions-input-box .mentions-autocomplete-list {
@@ -35,6 +33,7 @@
   border-radius:5px;
   border-top-right-radius:0;
   border-top-left-radius:0;
+  
 
   -webkit-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.148438);
      -moz-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.148438);
@@ -72,7 +71,6 @@
   margin-top:5px;
   margin-right: 5px;
   -moz-background-origin:3px;
-
   border-radius:3px;
 }
 
@@ -93,29 +91,37 @@
 
 .mentions-input-box .mentions {
   position: absolute;
-  left: 1px;
+  left: 0;
   right: 0;
-  top: 1px;
+  top: 0;
   bottom: 0;
   padding: 9px;
-  color: #fff;
-  overflow: hidden;
-
+  overflow: auto;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
   white-space: pre-wrap;
   word-wrap: break-word;
 }
 
+@-moz-document url-prefix() {
+    .mentions-input-box .mentions {
+        left: 9px;
+        right: 9px;
+        top: 9px;
+        bottom: 9px;
+        padding: 0;
+    }
+}
+
 .mentions-input-box .mentions > div {
-  color: #fff;
+  color: transparent;
   white-space: pre-wrap;
   width: 100%;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
 }
 
 .mentions-input-box .mentions > div > strong {
   font-weight:normal;
   background: #d8dfea;
-}
-
-.mentions-input-box .mentions > div > strong > span {
-  filter: progid:DXImageTransform.Microsoft.Alpha(opacity=0);
 }
