@@ -1,16 +1,10 @@
-
-.mentions-input-box {
-  position: relative;
-  background: #fff;
-}
-
 .mentions-input-box textarea {
   width: 100%;
   display: block;
   padding: 9px;
-  border: 0;
+  border: 1px solid red;
   border-radius:3px;
-  background: transparent;
+  background: #fff;
   position: relative;
   outline: 0;
   overflow: auto;
@@ -63,17 +57,6 @@
   border-radius:5px;
 }
 
-.mentions-input-box .mentions-autocomplete-list li > img,
-.mentions-input-box .mentions-autocomplete-list li > div.icon {
-  width: 16px;
-  height: 16px;
-  float: left;
-  margin-top:5px;
-  margin-right: 5px;
-  -moz-background-origin:3px;
-  border-radius:3px;
-}
-
 .mentions-input-box .mentions-autocomplete-list li em {
   font-weight: bold;
   font-style: none;
@@ -90,27 +73,8 @@
 }
 
 .mentions-input-box .mentions {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  padding: 9px;
-  overflow: auto;
-  box-sizing: border-box;
-  -moz-box-sizing: border-box;
   white-space: pre-wrap;
   word-wrap: break-word;
-}
-
-@-moz-document url-prefix() {
-    .mentions-input-box .mentions {
-        left: 9px;
-        right: 9px;
-        top: 9px;
-        bottom: 9px;
-        padding: 0;
-    }
 }
 
 .mentions-input-box .mentions > div {

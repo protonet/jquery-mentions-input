@@ -73,9 +73,25 @@
       elmWrapperBox = $(settings.templates.wrapper());
       elmInputBox.wrapAll(elmWrapperBox);
       elmWrapperBox = elmInputWrapper.find('> div');
+      
+      elmWrapperBox.css({
+        position:         "relative",
+        display:          "inline-block",
+        backgroundColor:  elmInputBox.css("backgroundColor"),
+        backgroundImage:  elmInputBox.css("backgroundImage"),
+        backgroundRepeat: elmInputBox.css("backgroundRepeat"),
+        backgroundSize:   elmInputBox.css("backgroundSize"),
+        width:            elmInputBox.css("width")
+      });
+      
+      console.log(elmInputBox.css("borderLeftWidth"))
     }
     
     function initTextarea() {
+      elmInputBox.css({
+        resize: "none",
+        position: "relative"
+      });
       elmInputBox.attr('data-mentions-input', 'true');
       elmInputBox.bind('keydown', onInputBoxKeyDown);
       elmInputBox.bind('keypress', onInputBoxKeyPress);
@@ -93,6 +109,46 @@
     function initMentionsOverlay() {
       elmMentionsOverlay = $(settings.templates.mentionsOverlay());
       elmMentionsOverlay.prependTo(elmWrapperBox);
+      
+      // TODO add border
+      
+      elmMentionsOverlay.css({
+        top:                0,
+        left:               0,
+        bottom:             0,
+        right:              0,
+        color:              "transparent",
+        position:           "absolute",
+        whiteSpace:         "pre-wrap",
+        wordWrap:           "break-word",
+        display:            elmInputBox.css("display"),
+        paddingTop:         elmInputBox.css("paddingTop"),
+        paddingRight:       elmInputBox.css("paddingRight"),
+        paddingBottom:      elmInputBox.css("paddingBottom"),
+        paddingLeft:        elmInputBox.css("paddingLeft"),
+        overflow:           elmInputBox.css("overflow"),
+        fontSize:           elmInputBox.css("fontSize"),
+        fontFamily:         elmInputBox.css("fontFamily"),
+        fontStyle:          elmInputBox.css("fontStyle"),
+        fontWeight:         elmInputBox.css("fontWeight"),
+        lineHeight:         elmInputBox.css("lineHeight"),
+        boxSizing:          elmInputBox.css("boxSizing")
+      });
+      
+      if (navigator.userAgent.indexOf("Firefox/") !== -1) {
+        elmMentionsOverlay.css({
+          top:            elmInputBox.css("paddingTop"),
+          right:          elmInputBox.css("paddingRight"),
+          bottom:         elmInputBox.css("paddingBottom"),
+          left:           elmInputBox.css("paddingLeft"),
+          paddingTop:     "",
+          paddingRight:   "",
+          paddingBottom:  "",
+          paddingLeft:    ""
+        });
+      }
+      
+      elmInputBox.css("background", "transparent");
       
       elmInputBox.bind('scroll', function() {
         elmMentionsOverlay.scrollTop(elmInputBox.scrollTop());
