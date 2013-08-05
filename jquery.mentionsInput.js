@@ -57,6 +57,13 @@
       return string.replace(/\s+$/,"");
     }
   };
+  
+  
+  function _copyStyles(styles, $from, $to) {
+    $.each(styles, function(i, style) {
+      $to.css(style, $from.css(style));
+    });
+  }
 
   var MentionsInput = function (settings) {
 
@@ -75,16 +82,16 @@
       elmWrapperBox = elmInputWrapper.find('> div');
       
       elmWrapperBox.css({
-        position:         "relative",
-        display:          "inline-block",
-        backgroundColor:  elmInputBox.css("backgroundColor"),
-        backgroundImage:  elmInputBox.css("backgroundImage"),
-        backgroundRepeat: elmInputBox.css("backgroundRepeat"),
-        backgroundSize:   elmInputBox.css("backgroundSize"),
-        width:            elmInputBox.css("width")
+        position: "relative",
+        display:  "inline-block"
       });
       
-      console.log(elmInputBox.css("borderLeftWidth"))
+      _copyStyles([
+        "backgroundColor",
+        "backgroundImage",
+        "backgroundRepeat",
+        "backgroundSize"
+      ], elmInputBox, elmWrapperBox);
     }
     
     function initTextarea() {
@@ -110,29 +117,43 @@
       elmMentionsOverlay = $(settings.templates.mentionsOverlay());
       elmMentionsOverlay.prependTo(elmWrapperBox);
       
-      // TODO add border
+      // TODO add border-radius
+      _copyStyles([
+        "display",
+        "paddingTop",
+        "paddingRight",
+        "paddingBottom",
+        "paddingLeft",
+        "overflow",
+        "fontSize",
+        "fontFamily",
+        "fontStyle",
+        "fontWeight",
+        "lineHeight",
+        "boxSizing",
+        "borderTopWidth",
+        "borderRightWidth",
+        "borderBottomWidth",
+        "borderLeftWidth",
+        "borderTopStyle",
+        "borderRightStyle",
+        "borderBottomStyle",
+        "borderLeftStyle",
+        "borderTopColor",
+        "borderRightColor",
+        "borderBottomColor",
+        "borderLeftColor"
+      ], elmInputBox, elmMentionsOverlay);
       
       elmMentionsOverlay.css({
-        top:                0,
-        left:               0,
-        bottom:             0,
-        right:              0,
-        color:              "transparent",
-        position:           "absolute",
-        whiteSpace:         "pre-wrap",
-        wordWrap:           "break-word",
-        display:            elmInputBox.css("display"),
-        paddingTop:         elmInputBox.css("paddingTop"),
-        paddingRight:       elmInputBox.css("paddingRight"),
-        paddingBottom:      elmInputBox.css("paddingBottom"),
-        paddingLeft:        elmInputBox.css("paddingLeft"),
-        overflow:           elmInputBox.css("overflow"),
-        fontSize:           elmInputBox.css("fontSize"),
-        fontFamily:         elmInputBox.css("fontFamily"),
-        fontStyle:          elmInputBox.css("fontStyle"),
-        fontWeight:         elmInputBox.css("fontWeight"),
-        lineHeight:         elmInputBox.css("lineHeight"),
-        boxSizing:          elmInputBox.css("boxSizing")
+        top:        0,
+        left:       0,
+        bottom:     0,
+        right:      0,
+        color:      "transparent",
+        position:   "absolute",
+        whiteSpace: "pre-wrap",
+        wordWrap:   "break-word"
       });
       
       if (navigator.userAgent.indexOf("Firefox/") !== -1) {
@@ -148,7 +169,10 @@
         });
       }
       
-      elmInputBox.css("background", "transparent");
+      elmInputBox.css({
+        background: "transparent",
+        borderColor: "transparent"
+      });
       
       elmInputBox.bind('scroll', function() {
         elmMentionsOverlay.scrollTop(elmInputBox.scrollTop());
