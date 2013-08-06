@@ -24,12 +24,12 @@ div.examples {
     width: 560px;
 }
 
-.examples .mentions-input-box {
+.examples .mentions-wrapper {
     margin-bottom: 10px;
     font-size: 14px;
 }
 
-.examples .mentions-input-box textarea {
+.examples .mentions-wrapper textarea {
     font-family: 'pt sans', arial, helvetica, sans-serif;
     font-size: 14px;
 }

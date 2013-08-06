@@ -20,10 +20,10 @@
       autoCompleteItemActive : "active"
     },
     templates     : {
-      wrapper                    : _.template('<div class="mentions-input-box"></div>'),
+      wrapper                    : _.template('<div class="mentions-wrapper"></div>'),
       autocompleteList           : _.template('<div class="mentions-autocomplete-list"></div>'),
       autocompleteListItem       : _.template('<li><%= content %></li>'),
-      mentionsOverlay            : _.template('<div class="mentions"><div></div></div>'),
+      mentionsOverlay            : _.template('<div class="mentions"></div>'),
       mentionItemSyntax          : _.template('@[<%= value %>](<%= id %>)'),
       mentionItemHighlight       : _.template('<strong><%= value %></strong>')
     }
@@ -90,8 +90,25 @@
         "backgroundColor",
         "backgroundImage",
         "backgroundRepeat",
-        "backgroundSize"
+        "backgroundSize",
+        "borderTopWidth",
+        "borderRightWidth",
+        "borderBottomWidth",
+        "borderLeftWidth",
+        "borderTopStyle",
+        "borderRightStyle",
+        "borderBottomStyle",
+        "borderLeftStyle",
+        "borderTopColor",
+        "borderRightColor",
+        "borderBottomColor",
+        "borderLeftColor"
       ], elmInputBox, elmWrapperBox);
+      
+      elmInputBox.css({
+        border: "none",
+        background: "transparent"
+      });
     }
     
     function initTextarea() {
@@ -130,19 +147,7 @@
         "fontStyle",
         "fontWeight",
         "lineHeight",
-        "boxSizing",
-        "borderTopWidth",
-        "borderRightWidth",
-        "borderBottomWidth",
-        "borderLeftWidth",
-        "borderTopStyle",
-        "borderRightStyle",
-        "borderBottomStyle",
-        "borderLeftStyle",
-        "borderTopColor",
-        "borderRightColor",
-        "borderBottomColor",
-        "borderLeftColor"
+        "boxSizing"
       ], elmInputBox, elmMentionsOverlay);
       
       elmMentionsOverlay.css({
@@ -168,11 +173,6 @@
           paddingLeft:    ""
         });
       }
-      
-      elmInputBox.css({
-        background: "transparent",
-        borderColor: "transparent"
-      });
       
       elmInputBox.bind('scroll', function() {
         elmMentionsOverlay.scrollTop(elmInputBox.scrollTop());
@@ -203,7 +203,7 @@
       mentionText = mentionText.replace(/ {2}/g, '&nbsp; ');
 
       elmInputBox.data('messageText', syntaxMessage);
-      elmMentionsOverlay.find('div').html(mentionText);
+      elmMentionsOverlay.html(mentionText);
     }
 
     function resetBuffer() {
@@ -275,7 +275,6 @@
     function onInputBoxInput() {
       updateValues();
       updateMentionsCollection();
-
       var triggerCharIndex = _.lastIndexOf(inputBuffer, settings.triggerChar);
       if (triggerCharIndex > -1) {
         currentDataQuery = inputBuffer.slice(triggerCharIndex + 1).join('');
@@ -403,7 +402,7 @@
 
     function doSearch(query) {
       if (query && query.length && query.length >= settings.minChars) {
-        settings.onDataRequest.call(this, 'search', query, function (responseData) {
+        settings.onDataRequest.call(this, query, function (responseData) {
           populateDropdown(query, responseData);
         });
       } else {

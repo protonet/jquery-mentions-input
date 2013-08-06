@@ -1,4 +1,4 @@
-.mentions-input-box textarea {
+.mentions-wrapper textarea {
   width: 100%;
   display: block;
   padding: 9px;
@@ -13,7 +13,7 @@
   resize: none;
 }
 
-.mentions-input-box .mentions-autocomplete-list {
+.mentions-wrapper .mentions-autocomplete-list {
   display: none;
   background: #fff;
   border: 1px solid #b2b2b2;
@@ -33,12 +33,12 @@
           box-shadow: 0 2px 5px rgba(0, 0, 0, 0.148438);
 }
 
-.mentions-input-box .mentions-autocomplete-list ul {
+.mentions-wrapper .mentions-autocomplete-list ul {
     margin: 0;
     padding: 0;
 }
 
-.mentions-input-box .mentions-autocomplete-list li {
+.mentions-wrapper .mentions-autocomplete-list li {
   background-color: #fff;
   padding: 0 5px;
   margin: 0;
@@ -52,37 +52,37 @@
   white-space: nowrap;
 }
 
-.mentions-input-box .mentions-autocomplete-list li:last-child {
+.mentions-wrapper .mentions-autocomplete-list li:last-child {
   border-radius:5px;
 }
 
-.mentions-input-box .mentions-autocomplete-list li em {
+.mentions-wrapper .mentions-autocomplete-list li em {
   font-weight: bold;
   font-style: none;
 }
 
-.mentions-input-box .mentions-autocomplete-list li:hover,
-.mentions-input-box .mentions-autocomplete-list li.active {
+.mentions-wrapper .mentions-autocomplete-list li:hover,
+.mentions-wrapper .mentions-autocomplete-list li.active {
   background-color: #f2f2f2;
 }
 
-.mentions-input-box .mentions-autocomplete-list li b {
+.mentions-wrapper .mentions-autocomplete-list li b {
   background: #ffff99;
   font-weight: normal;
 }
 
-.mentions-input-box .mentions {
+.mentions-wrapper .mentions {
   white-space: pre-wrap;
   word-wrap: break-word;
 }
 
-.mentions-input-box .mentions > div {
+.mentions-wrapper .mentions > div {
   color: transparent;
   white-space: pre-wrap;
   width: 100%;
 }
 
-.mentions-input-box .mentions > div > strong {
+.mentions-wrapper .mentions > div > strong {
   font-weight:normal;
   background: #d8dfea;
 }
