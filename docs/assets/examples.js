@@ -1,7 +1,7 @@
 $(function () {
 
   $('textarea.mention').mentionsInput({
-    onDataRequest:function (mode, query, callback) {
+    onDataRequest:function (query, callback) {
       var data = [
         { id:1, name:'Kenneth Auchenberg', 'avatar':'http://cdn0.4dots.com/i/customavatars/avatar7112_1.gif', 'type':'contact' },
         { id:2, name:'Jon Froda', 'avatar':'http://cdn0.4dots.com/i/customavatars/avatar7112_1.gif', 'type':'contact' },

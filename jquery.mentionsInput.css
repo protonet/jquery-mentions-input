@@ -82,7 +82,7 @@
   width: 100%;
 }
 
-.mentions-wrapper .mentions > div > strong {
+.mentions-wrapper .mentions > strong {
   font-weight:normal;
   background: #d8dfea;
 }

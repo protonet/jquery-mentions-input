@@ -83,10 +83,12 @@
       
       elmWrapperBox.css({
         position: "relative",
-        display:  "inline-block"
+        boxSizing: "border-box",
+        width: elmInputBox.outerWidth()
       });
       
       _copyStyles([
+        "display",
         "backgroundColor",
         "backgroundImage",
         "backgroundRepeat",
@@ -102,7 +104,7 @@
         "borderTopColor",
         "borderRightColor",
         "borderBottomColor",
-        "borderLeftColor"
+        "borderLeftColor",
       ], elmInputBox, elmWrapperBox);
       
       elmInputBox.css({
@@ -128,6 +130,11 @@
       elmAutocompleteList = $(settings.templates.autocompleteList());
       elmAutocompleteList.appendTo(elmWrapperBox);
       elmAutocompleteList.delegate('li', 'mousedown', onAutoCompleteItemClick);
+      
+      elmAutocompleteList.css({
+        position: "absolute",
+        cursor:   "pointer"
+      });
     }
 
     function initMentionsOverlay() {
@@ -260,7 +267,7 @@
       var mention = autocompleteItemCollection[elmTarget.attr('data-uid')];
 
       addMention(mention);
-
+      
       return false;
     }
 
@@ -352,7 +359,9 @@
 
     function hideAutoComplete() {
       elmActiveAutoCompleteItem = null;
-      elmAutocompleteList.empty().hide();
+      if (elmAutocompleteList) {
+        elmAutocompleteList.empty().hide();
+      }
     }
 
     function selectAutoCompleteItem(elmItem) {
