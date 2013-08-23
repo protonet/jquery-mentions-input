@@ -18,7 +18,7 @@
     onDataRequest : $.noop,
     minChars      : 1,
     classes       : {
-      autoCompleteItemActive : "active"
+      autoCompleteItemActive : "selected"
     },
     templates     : {
       wrapper                    : _.template('<div class="mentions-wrapper"></div>'),
