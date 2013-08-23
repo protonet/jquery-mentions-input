@@ -22,7 +22,7 @@
     },
     templates     : {
       wrapper                    : _.template('<div class="mentions-wrapper"></div>'),
-      caretCalculator            : _.template('<div class="mentions-caret-calculatir"></div>'),
+      caretCalculator            : _.template('<div class="mentions-caret-calculator"></div>'),
       autocompleteList           : _.template('<div class="mentions-autocomplete-list"></div>'),
       autocompleteListItem       : _.template('<li><%= content %></li>'),
       mentionsOverlay            : _.template('<div class="mentions"></div>'),
@@ -175,8 +175,7 @@
       
       elmAutocompleteList.css({
         position: "absolute",
-        cursor:   "pointer",
-        background: "gray"
+        cursor:   "pointer"
       });
     }
 
