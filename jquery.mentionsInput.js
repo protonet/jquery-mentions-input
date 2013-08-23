@@ -11,6 +11,7 @@
 (function ($, _, undefined) {
 
   // Settings
+  var $window = $(window);
   var KEY = { BACKSPACE : 8, TAB : 9, RETURN : 13, ESC : 27, LEFT : 37, UP : 38, RIGHT : 39, DOWN : 40, COMMA : 188, SPACE : 32, HOME : 36, END : 35 }; // Keys "enum"
   var defaultSettings = {
     triggerChar   : '@',
@@ -21,6 +22,7 @@
     },
     templates     : {
       wrapper                    : _.template('<div class="mentions-wrapper"></div>'),
+      caretCalculator            : _.template('<div class="mentions-caret-calculatir"></div>'),
       autocompleteList           : _.template('<div class="mentions-autocomplete-list"></div>'),
       autocompleteListItem       : _.template('<li><%= content %></li>'),
       mentionsOverlay            : _.template('<div class="mentions"></div>'),
@@ -33,13 +35,7 @@
     htmlEncode       : function (str) {
       return _.escape(str);
     },
-    highlightTerm    : function (value, term) {
-      if (!term && !term.length) {
-        return value;
-      }
-      return value.replace(new RegExp("(?![^&;]+;)(?!<[^<>]*)(" + term + ")(?![^<>]*>)(?![^&;]+;)", "gi"), "<b>$1</b>");
-    },
-    setCaratPosition : function (domNode, caretPos) {
+    setCaretPosition : function (domNode, caretPos) {
       if (domNode.createTextRange) {
         var range = domNode.createTextRange();
         range.move('character', caretPos);
@@ -67,7 +63,7 @@
 
   var MentionsInput = function (settings) {
 
-    var elmInputBox, elmInputWrapper, elmAutocompleteList, elmWrapperBox, elmMentionsOverlay, elmActiveAutoCompleteItem;
+    var elmInputBox, elmInputWrapper, elmAutocompleteList, elmWrapperBox, elmMentionsOverlay, elmActiveAutoCompleteItem, elmCaretCalculator;
     var mentionsCollection = [];
     var autocompleteItemCollection = {};
     var inputBuffer = [];
@@ -129,6 +125,48 @@
       elmInputBox.bind('click', onInputBoxClick);
       elmInputBox.bind('blur', onInputBoxBlur);
     }
+    
+    function initCaretCalculator() {
+      elmCaretCalculator = $(settings.templates.caretCalculator());
+      elmCaretCalculator.appendTo(elmWrapperBox);
+      
+      elmCaretCalculator.css({
+        top:        0,
+        left:       0,
+        right:      0,
+        bottom:     0,
+        position:   "absolute",
+        whiteSpace: "pre-wrap",
+        wordWrap:   "break-word",
+        display:    "none"
+      });
+      
+      _copyStyles([
+        "paddingTop",
+        "paddingRight",
+        "paddingBottom",
+        "paddingLeft",
+        "overflow",
+        "letterSpacing",
+        "fontSize",
+        "fontFamily",
+        "fontStyle",
+        "fontWeight",
+        "lineHeight",
+        "borderTopWidth",
+        "borderRightWidth",
+        "borderBottomWidth",
+        "borderLeftWidth",
+        "borderTopStyle",
+        "borderRightStyle",
+        "borderBottomStyle",
+        "borderLeftStyle",
+        "borderTopColor",
+        "borderRightColor",
+        "borderBottomColor",
+        "borderLeftColor",
+      ], elmInputBox, elmCaretCalculator);
+    }
 
     function initAutocomplete() {
       elmAutocompleteList = $(settings.templates.autocompleteList());
@@ -137,7 +175,8 @@
       
       elmAutocompleteList.css({
         position: "absolute",
-        cursor:   "pointer"
+        cursor:   "pointer",
+        background: "gray"
       });
     }
 
@@ -153,6 +192,7 @@
         "paddingBottom",
         "paddingLeft",
         "overflow",
+        "letterSpacing",
         "fontSize",
         "fontFamily",
         "fontStyle",
@@ -259,7 +299,7 @@
 
       // Set correct focus and selection
       elmInputBox.focus();
-      utils.setCaratPosition(elmInputBox[0], startEndIndex);
+      utils.setCaretPosition(elmInputBox[0], startEndIndex);
     }
 
     function getInputBoxValue() {
@@ -368,8 +408,45 @@
       }
     }
     
+    function getTriggerCharOffset() {
+      var val = elmInputBox.val();
+      var pos = val.substr(0, elmInputBox.prop("selectionEnd")).lastIndexOf(settings.triggerChar) + settings.triggerChar.length;
+      var placeholder = "|-#-|";
+      val = val.substr(0, pos) + placeholder + val.substr(pos);
+      val = utils.htmlEncode(val);
+      val = val.replace(placeholder, "<span>.</span>");
+      val = val.replace(/\n/g, '<br>');
+      val = val.replace(/<br>$/g, '<br>&nbsp;');
+      elmCaretCalculator.html(val);
+      elmCaretCalculator.show();
+      var $position = elmCaretCalculator.find("span");
+      var offset = $position.offset();
+      $position.remove();
+      elmCaretCalculator.hide();
+      return offset;
+    }
+    
     function showAutoComplete() {
       elmAutocompleteList.show();
+      var offset = getTriggerCharOffset();
+      var height = elmAutocompleteList.outerHeight();
+      var width = elmAutocompleteList.outerWidth();
+      var scrollTop = $window.scrollTop();
+      var scrollLeft = $window.scrollLeft();
+      var windowHeight = $window.height();
+      var windowWidth = $window.width();
+      var top = offset.top + 20;
+      var left = offset.left;
+      
+      if ((top + height) > (windowHeight + scrollTop)) {
+        top = offset.top - height;
+      }
+      
+      if ((left + width) > (windowWidth + scrollLeft)) {
+        left = offset.left - width;
+      }
+      
+      elmAutocompleteList.offset({ top: top, left: left });
     }
 
     function selectAutoCompleteItem(elmItem) {
@@ -380,8 +457,6 @@
     }
 
     function populateDropdown(query, results) {
-      showAutoComplete();
-
       // Filter items that has already been mentioned
       var mentionValues = _.pluck(mentionsCollection, 'value');
       results = _.reject(results, function (item) {
@@ -400,11 +475,10 @@
         var itemUid = _.uniqueId('mention_');
 
         autocompleteItemCollection[itemUid] = _.extend({}, item, {value: item.name});
-
+        
         var elmListItem = $(settings.templates.autocompleteListItem({
           id      : utils.htmlEncode(item.id),
-          display : utils.htmlEncode(item.name),
-          content : utils.highlightTerm(utils.htmlEncode((item.name)), query)
+          content : utils.htmlEncode(item.name)
         })).attr('data-uid', itemUid);
 
         if (index === 0) {
@@ -412,9 +486,9 @@
         }
         elmListItem = elmListItem.appendTo(elmDropDownList);
       });
-
-      elmAutocompleteList.show();
+      
       elmDropDownList.show();
+      showAutoComplete();
     }
 
     function doSearch(query) {
@@ -445,6 +519,7 @@
         initWrapper();
         initAutocomplete();
         initMentionsOverlay();
+        initCaretCalculator();
         resetInput();
 
         if( settings.prefillMention ) {
