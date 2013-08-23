@@ -237,14 +237,14 @@
         var textSyntax = settings.templates.mentionItemSyntax(mention);
         syntaxMessage = syntaxMessage.replace(mention.value, textSyntax);
       });
-
+      
       var mentionText = utils.htmlEncode(syntaxMessage);
 
       _.each(mentionsCollection, function (mention) {
-        var formattedMention = _.extend({}, mention, {value: utils.htmlEncode(mention.value)});
-        var textSyntax = settings.templates.mentionItemSyntax(formattedMention);
+        var formattedMention = _.extend({}, mention, {value: mention.value});
+        var textSyntax = utils.htmlEncode(settings.templates.mentionItemSyntax(formattedMention));
+        formattedMention.value = utils.htmlEncode(formattedMention.value);
         var textHighlight = settings.templates.mentionItemHighlight(formattedMention);
-
         mentionText = mentionText.replace(textSyntax, textHighlight);
       });
 
