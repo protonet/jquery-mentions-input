@@ -78,7 +78,11 @@
     function initWrapper() {
       elmInputWrapper = elmInputBox.parent();
       elmWrapperBox = $(settings.templates.wrapper());
+      var hasFocus = elmInputBox.is(":focus");
       elmInputBox.wrapAll(elmWrapperBox);
+      if (hasFocus) {
+        elmInputBox.focus();
+      }
       elmWrapperBox = elmInputWrapper.find('> div');
       
       elmWrapperBox.css({
@@ -220,7 +224,7 @@
     function updateMentionsCollection() {
       var inputText = getInputBoxValue();
 
-      mentionsCollection = _.reject(mentionsCollection, function (mention, index) {
+      mentionsCollection = _.reject(mentionsCollection, function (mention) {
         return !mention.value || inputText.indexOf(mention.value) == -1;
       });
       mentionsCollection = _.compact(mentionsCollection);
@@ -363,6 +367,10 @@
         elmAutocompleteList.empty().hide();
       }
     }
+    
+    function showAutoComplete() {
+      elmAutocompleteList.show();
+    }
 
     function selectAutoCompleteItem(elmItem) {
       elmItem.addClass(settings.classes.autoCompleteItemActive);
@@ -372,7 +380,7 @@
     }
 
     function populateDropdown(query, results) {
-      elmAutocompleteList.show();
+      showAutoComplete();
 
       // Filter items that has already been mentioned
       var mentionValues = _.pluck(mentionsCollection, 'value');

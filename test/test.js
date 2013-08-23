@@ -89,3 +89,12 @@ asyncTest("autocompleter list is correctly toggled when query matches", function
     start();
   });
 });
+
+test("ensures that focus on input/textarea is preserved when initializing", function() {
+  var $message = $("#message");
+  
+  $message.focus();
+  $message.mentionsInput();
+  
+  ok($message.is(":focus"));
+});
