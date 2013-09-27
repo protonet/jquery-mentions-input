@@ -79,7 +79,7 @@
       if (hasFocus) {
         elmInputBox.focus();
       }
-      elmWrapperBox = elmInputWrapper.find('> div');
+      elmWrapperBox = elmInputWrapper.find('> div.mentions-wrapper');
       
       elmWrapperBox.css({
         position: "relative",
