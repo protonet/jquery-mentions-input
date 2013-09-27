@@ -98,3 +98,74 @@ test("ensures that focus on input/textarea is preserved when initializing", func
   
   ok($message.is(":focus"));
 });
+
+
+asyncTest("autocompleter triggers mentionadd event", function() {
+  expect(2);
+  
+  var $message = $("#message");
+  
+  $message.mentionsInput({
+    onDataRequest: function(query, callback) {
+      callback([{ name: "Spongebob Squarepants", id: 7 }]);
+    }
+  });
+  
+  var $wrapper = $message.parent();
+  var $autocompleterList = $wrapper.find(".mentions-autocomplete-list");
+  
+  $.each("hello @s".split(""), function(i, character) {
+    var $keypress = $.Event("keypress", {
+      keyCode: character.charCodeAt(0)
+    });
+    
+    $message.trigger($keypress);
+    $message.val($message.val() + character).trigger("input");
+  });
+  
+  _.defer(function() {
+    $message.on("mentionadd", function(event, mentions) {
+      ok(true, "mention added");
+      deepEqual(mentions, [{ name: "Spongebob Squarepants", id: 7, value: "Spongebob Squarepants" }], "Proper mentions array passed into event handler");
+      start();
+    });
+    
+    $autocompleterList.find("li").mousedown();
+  });
+});
+
+asyncTest("autocompleter triggers mentionremove event", function() {
+  expect(2);
+  
+  var $message = $("#message");
+  
+  $message.mentionsInput({
+    onDataRequest: function(query, callback) {
+      callback([{ name: "Spongebob Squarepants", id: 7 }]);
+    }
+  });
+  
+  var $wrapper = $message.parent();
+  var $autocompleterList = $wrapper.find(".mentions-autocomplete-list");
+  
+  $.each("hello @s".split(""), function(i, character) {
+    var $keypress = $.Event("keypress", {
+      keyCode: character.charCodeAt(0)
+    });
+    
+    $message.trigger($keypress);
+    $message.val($message.val() + character).trigger("input");
+  });
+  
+  _.defer(function() {
+    $autocompleterList.find("li").mousedown();
+    
+    $message.on("mentionremove", function(event, mentions) {
+      ok(true, "mention removed");
+      deepEqual(mentions, [], "Proper mentions array passed into event handler");
+      start();
+    });
+    
+    $message.val("").trigger("input");
+  });
+});

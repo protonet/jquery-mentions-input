@@ -1,7 +1,7 @@
 /*
  * Mentions Input
- * Version 1.0.2
- * Written by: Kenneth Auchenberg (Podio)
+ *
+ * Written by: Kenneth Auchenberg (Podio), forked and adopted by Christopher Blum (protonet)
  *
  * Using underscore.js
  *
@@ -80,7 +80,6 @@
         elmInputBox.focus();
       }
       elmWrapperBox = elmInputWrapper.find('> div.mentions-wrapper');
-      
       elmWrapperBox.css({
         position: "relative",
         boxSizing: "border-box",
@@ -262,11 +261,19 @@
 
     function updateMentionsCollection() {
       var inputText = getInputBoxValue();
-
+      
+      var oldLength = mentionsCollection.length;
+      
       mentionsCollection = _.reject(mentionsCollection, function (mention) {
         return !mention.value || inputText.indexOf(mention.value) == -1;
       });
       mentionsCollection = _.compact(mentionsCollection);
+      
+      var newLength = mentionsCollection.length;
+      
+      if (oldLength !== newLength) {
+        elmInputBox.trigger("mentionremove", [mentionsCollection]);
+      }
     }
 
     function addMention(mention) {
@@ -299,6 +306,8 @@
       // Set correct focus and selection
       elmInputBox.focus();
       utils.setCaretPosition(elmInputBox[0], startEndIndex);
+      
+      elmInputBox.trigger("mentionadd", [mentionsCollection]);
     }
 
     function getInputBoxValue() {
@@ -513,7 +522,7 @@
         if (elmInputBox.attr('data-mentions-input') == 'true') {
           return;
         }
-        
+
         initTextarea();
         initWrapper();
         initAutocomplete();
