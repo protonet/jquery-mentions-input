@@ -1,7 +1,7 @@
 /*
  * Mentions Input
- *
- * Written by: Kenneth Auchenberg (Podio), forked and adopted by Christopher Blum (protonet)
+ * Version 1.0.2
+ * Written by: Kenneth Auchenberg (Podio)
  *
  * Using underscore.js
  *
@@ -513,6 +513,7 @@
       elmInputBox.val('');
       mentionsCollection = [];
       updateValues();
+      elmInputBox.trigger("mentionreset", [mentionsCollection]);
     }
 
     // Public methods

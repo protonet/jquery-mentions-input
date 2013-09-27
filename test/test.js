@@ -169,3 +169,19 @@ asyncTest("autocompleter triggers mentionremove event", function() {
     $message.val("").trigger("input");
   });
 });
+
+test("reset triggers mentionreset event", function() {
+  
+  var $message = $("#message"); 
+  $message.mentionsInput({
+    onDataRequest: function(query, callback) {
+      callback([{ name: "Spongebob Squarepants", id: 7 }]);
+    }
+  });
+  $message.on("mentionreset", function(event, mentions) {
+    ok(true, "mention reset");
+    deepEqual(mentions, [], "Proper mentions array passed into event handler");
+  });
+  
+  $message.mentionsInput("reset");  
+});
