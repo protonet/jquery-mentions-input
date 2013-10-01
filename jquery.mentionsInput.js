@@ -1,7 +1,7 @@
 /*
  * Mentions Input
- * Version 1.0.2
  * Written by: Kenneth Auchenberg (Podio)
+ * Forked and extended by: Christopher Blum (Protonet)
  *
  * Using underscore.js
  *
