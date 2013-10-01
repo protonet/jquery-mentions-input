@@ -17,6 +17,7 @@
     triggerChar   : '@',
     onDataRequest : $.noop,
     minChars      : 1,
+    forcePos      : null,
     classes       : {
       autoCompleteItemActive : "selected"
     },
@@ -53,8 +54,8 @@
       return string.replace(/\s+$/,"");
     }
   };
-  
-  
+
+
   function _copyStyles(styles, $from, $to) {
     $.each(styles, function(i, style) {
       $to.css(style, $from.css(style));
@@ -70,7 +71,7 @@
     var currentDataQuery;
 
     settings = $.extend(true, {}, defaultSettings, settings );
-    
+
     function initWrapper() {
       elmInputWrapper = elmInputBox.parent();
       elmWrapperBox = $(settings.templates.wrapper());
@@ -85,7 +86,7 @@
         boxSizing: "border-box",
         width: elmInputBox.outerWidth()
       });
-      
+
       _copyStyles([
         "display",
         "backgroundColor",
@@ -105,13 +106,13 @@
         "borderBottomColor",
         "borderLeftColor",
       ], elmInputBox, elmWrapperBox);
-      
+
       elmInputBox.css({
         border: "none",
         background: "transparent"
       });
     }
-    
+
     function initTextarea() {
       elmInputBox.css({
         resize: "none",
@@ -124,11 +125,11 @@
       elmInputBox.bind('click', onInputBoxClick);
       elmInputBox.bind('blur', onInputBoxBlur);
     }
-    
+
     function initCaretCalculator() {
       elmCaretCalculator = $(settings.templates.caretCalculator());
       elmCaretCalculator.appendTo(elmWrapperBox);
-      
+
       elmCaretCalculator.css({
         top:        0,
         left:       0,
@@ -139,7 +140,7 @@
         wordWrap:   "break-word",
         display:    "none"
       });
-      
+
       _copyStyles([
         "paddingTop",
         "paddingRight",
@@ -171,7 +172,7 @@
       elmAutocompleteList = $(settings.templates.autocompleteList());
       elmAutocompleteList.appendTo(elmWrapperBox);
       elmAutocompleteList.delegate('li', 'mousedown', onAutoCompleteItemClick);
-      
+
       elmAutocompleteList.css({
         position: "absolute",
         cursor:   "pointer"
@@ -181,7 +182,7 @@
     function initMentionsOverlay() {
       elmMentionsOverlay = $(settings.templates.mentionsOverlay());
       elmMentionsOverlay.prependTo(elmWrapperBox);
-      
+
       // TODO add border-radius
       _copyStyles([
         "display",
@@ -198,7 +199,7 @@
         "lineHeight",
         "boxSizing"
       ], elmInputBox, elmMentionsOverlay);
-      
+
       elmMentionsOverlay.css({
         top:        0,
         left:       0,
@@ -209,7 +210,7 @@
         whiteSpace: "pre-wrap",
         wordWrap:   "break-word"
       });
-      
+
       if (navigator.userAgent.indexOf("Firefox/") !== -1) {
         elmMentionsOverlay.css({
           top:            elmInputBox.css("paddingTop"),
@@ -222,7 +223,7 @@
           paddingLeft:    ""
         });
       }
-      
+
       elmInputBox.bind('scroll', function() {
         elmMentionsOverlay.scrollTop(elmInputBox.scrollTop());
         elmMentionsOverlay.scrollLeft(elmInputBox.scrollLeft());
@@ -236,7 +237,7 @@
         var textSyntax = settings.templates.mentionItemSyntax(mention);
         syntaxMessage = syntaxMessage.replace(mention.value, textSyntax);
       });
-      
+
       var mentionText = utils.htmlEncode(syntaxMessage);
 
       _.each(mentionsCollection, function (mention) {
@@ -261,16 +262,16 @@
 
     function updateMentionsCollection() {
       var inputText = getInputBoxValue();
-      
+
       var oldLength = mentionsCollection.length;
-      
+
       mentionsCollection = _.reject(mentionsCollection, function (mention) {
         return !mention.value || inputText.indexOf(mention.value) == -1;
       });
       mentionsCollection = _.compact(mentionsCollection);
-      
+
       var newLength = mentionsCollection.length;
-      
+
       if (oldLength !== newLength) {
         elmInputBox.trigger("mentionremove", [mentionsCollection]);
       }
@@ -306,7 +307,7 @@
       // Set correct focus and selection
       elmInputBox.focus();
       utils.setCaretPosition(elmInputBox[0], startEndIndex);
-      
+
       elmInputBox.trigger("mentionadd", [mentionsCollection]);
     }
 
@@ -319,7 +320,7 @@
       var mention = autocompleteItemCollection[elmTarget.attr('data-uid')];
 
       addMention(mention);
-      
+
       return false;
     }
 
@@ -404,6 +405,10 @@
           }
 
           break;
+
+        case KEY.ESC:
+          hideAutoComplete();
+          return false;
       }
 
       return true;
@@ -415,7 +420,7 @@
         elmAutocompleteList.empty().hide();
       }
     }
-    
+
     function getTriggerCharOffset() {
       var val = elmInputBox.val();
       var pos = val.substr(0, elmInputBox.prop("selectionEnd")).lastIndexOf(settings.triggerChar) + settings.triggerChar.length;
@@ -433,7 +438,7 @@
       elmCaretCalculator.hide();
       return offset;
     }
-    
+
     function showAutoComplete() {
       elmAutocompleteList.show();
       var offset = getTriggerCharOffset();
@@ -445,15 +450,15 @@
       var windowWidth = $window.width();
       var top = offset.top + 20;
       var left = offset.left;
-      
-      if ((top + height) > (windowHeight + scrollTop)) {
+
+      if ((top + height) > (windowHeight + scrollTop) || settings.forcePos === "top") {
         top = offset.top - height;
       }
-      
+
       if ((left + width) > (windowWidth + scrollLeft)) {
         left = offset.left - width;
       }
-      
+
       elmAutocompleteList.offset({ top: top, left: left });
     }
 
@@ -483,7 +488,7 @@
         var itemUid = _.uniqueId('mention_');
 
         autocompleteItemCollection[itemUid] = _.extend({}, item, {value: item.name});
-        
+
         var elmListItem = $(settings.templates.autocompleteListItem({
           id      : utils.htmlEncode(item.id),
           content : utils.htmlEncode(item.name)
@@ -494,7 +499,7 @@
         }
         elmListItem = elmListItem.appendTo(elmDropDownList);
       });
-      
+
       elmDropDownList.show();
       showAutoComplete();
     }

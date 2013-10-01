@@ -2,7 +2,6 @@
   width: 100%;
   display: block;
   padding: 9px;
-  border: 1px solid red;
   border-radius:3px;
   background: #fff;
   position: relative;
@@ -73,4 +72,8 @@
 .mentions-wrapper .mentions > strong {
   font-weight:normal;
   background: #d8dfea;
+}
+
+.selected {
+  background-color: #eee !important;
 }
