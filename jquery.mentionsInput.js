@@ -393,9 +393,9 @@
 
           if (elmCurrentAutoCompleteItem.length) {
             selectAutoCompleteItem(elmCurrentAutoCompleteItem);
+            return false;
           }
-
-          return false;
+          break;
 
         case KEY.RETURN:
         case KEY.TAB:
