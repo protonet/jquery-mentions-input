@@ -432,6 +432,8 @@
       val = val.replace(/<br>$/g, '<br>&nbsp;');
       elmCaretCalculator.html(val);
       elmCaretCalculator.show();
+      elmCaretCalculator.scrollTop(elmInputBox.scrollTop());
+      elmCaretCalculator.scrollLeft(elmInputBox.scrollLeft());
       var $position = elmCaretCalculator.find("span");
       var offset = $position.offset();
       $position.remove();
