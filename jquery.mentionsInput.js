@@ -104,7 +104,7 @@
         "borderTopColor",
         "borderRightColor",
         "borderBottomColor",
-        "borderLeftColor",
+        "borderLeftColor"
       ], elmInputBox, elmWrapperBox);
 
       elmInputBox.css({
@@ -164,7 +164,7 @@
         "borderTopColor",
         "borderRightColor",
         "borderBottomColor",
-        "borderLeftColor",
+        "borderLeftColor"
       ], elmInputBox, elmCaretCalculator);
     }
 
