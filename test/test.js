@@ -185,3 +185,19 @@ test("reset triggers mentionreset event", function() {
   
   $message.mentionsInput("reset");  
 });
+
+
+test("setMentions triggers mentionadd event", function() {
+  
+  var $message = $("#message"); 
+  $message.mentionsInput();
+  
+  var collection = [{ name: "Spongebob Squarepants", id: 7, value: "Spongebob Squarepants" }];
+  
+  $message.on("mentionadd", function(e, mentions) {
+    equal(collection, mentions, "Proper mentions array passed into mentionadd event handler");
+  });
+  
+  var instance = $message.data("mentionsInput");
+  instance.setMentions(collection);
+});

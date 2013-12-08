@@ -232,7 +232,6 @@
 
     function updateValues() {
       var syntaxMessage = getInputBoxValue();
-
       _.each(mentionsCollection, function (mention) {
         var textSyntax = settings.templates.mentionItemSyntax(mention);
         syntaxMessage = syntaxMessage.replace(mention.value, textSyntax);
@@ -537,11 +536,6 @@
         initMentionsOverlay();
         initCaretCalculator();
         resetInput();
-
-        if( settings.prefillMention ) {
-          addMention( settings.prefillMention );
-        }
-
       },
 
       val : function (callback) {
@@ -563,6 +557,15 @@
         }
 
         callback.call(this, mentionsCollection);
+      },
+      
+      setMentions : function(mentions) {
+        mentionsCollection = mentions;
+        resetBuffer();
+        updateValues();
+        if (mentions.length) {
+          elmInputBox.trigger("mentionadd", [mentionsCollection]);
+        }
       }
     };
   };
