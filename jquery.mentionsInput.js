@@ -506,7 +506,7 @@
     }
 
     function doSearch(query) {
-      if (query && query.length && query.length >= settings.minChars) {
+      if (typeof(query) === "string" && query.length >= settings.minChars) {
         settings.onDataRequest.call(this, query, function (responseData) {
           populateDropdown(query, responseData);
         });

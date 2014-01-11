@@ -90,6 +90,44 @@ asyncTest("autocompleter list is correctly toggled when query matches", function
   });
 });
 
+asyncTest("autocompleter works with minChars: 0", function() {
+  expect(5);
+  
+  var $message = $("#message");
+  
+  $message.mentionsInput({
+    minChars: 0,
+    onDataRequest: function(query, callback) {
+      equal(query, "", "correct query passed into callback");
+      callback([{ name: "Spongebob Squarepants", id: 7 }]);
+    }
+  });
+  
+  var $wrapper = $message.parent();
+  var $autocompleterList = $wrapper.find(".mentions-autocomplete-list");
+  
+  ok($autocompleterList.is(":hidden"), "list is initially hidden");
+  
+  $.each("hello @".split(""), function(i, character) {
+    var $keypress = $.Event("keypress", {
+      keyCode: character.charCodeAt(0)
+    });
+    
+    $message.trigger($keypress);
+    
+    $message.val($message.val() + character).trigger("input");
+  });
+  
+  _.defer(function() {
+    ok($autocompleterList.is(":visible"), "list is visible after query matches");
+    equal($autocompleterList.find("li").length, 1, "1 result is listed");
+
+    equal($autocompleterList.find("li").text(), "Spongebob Squarepants", "Correct content is rendered into the list");
+    
+    start();
+  });
+});
+
 test("ensures that focus on input/textarea is preserved when initializing", function() {
   var $message = $("#message");
   
