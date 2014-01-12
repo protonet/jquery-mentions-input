@@ -280,12 +280,12 @@
 
       var currentMessage = getInputBoxValue();
 
-      // Using a regex to figure out positions
-      var regex = new RegExp("\\" + settings.triggerChar + currentDataQuery, "gi");
-      regex.exec(currentMessage);
-
-      var startCaretPosition = regex.lastIndex - currentDataQuery.length - 1;
-      var currentCaretPosition = regex.lastIndex;
+      var fullQuery = settings.triggerChar + currentDataQuery;
+      var firstIndex = currentMessage.indexOf(fullQuery, (elmInputBox[0].selectionEnd || 0) - fullQuery.length);
+      var lastIndex = firstIndex + currentDataQuery.length + 1;
+      
+      var startCaretPosition = firstIndex;
+      var currentCaretPosition = lastIndex;
 
       var start = currentMessage.substr(0, startCaretPosition);
       var end = currentMessage.substr(currentCaretPosition, currentMessage.length);
