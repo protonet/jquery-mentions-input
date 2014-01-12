@@ -283,7 +283,7 @@
       var fullQuery = settings.triggerChar + currentDataQuery;
       var firstIndex = currentMessage.indexOf(fullQuery, (elmInputBox[0].selectionEnd || 0) - fullQuery.length);
       var lastIndex = firstIndex + currentDataQuery.length + 1;
-      
+
       var startCaretPosition = firstIndex;
       var currentCaretPosition = lastIndex;
 
@@ -369,6 +369,7 @@
 
       if (e.keyCode == KEY.BACKSPACE) {
         inputBuffer = inputBuffer.slice(0, -1 + inputBuffer.length); // Can't use splice, not available in IE
+        _.defer(hideAutoComplete);
         return;
       }
 
@@ -558,7 +559,7 @@
 
         callback.call(this, mentionsCollection);
       },
-      
+
       setMentions : function(mentions) {
         mentionsCollection = mentions;
         resetBuffer();
