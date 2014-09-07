@@ -12,7 +12,7 @@
 
   // Settings
   var $window = $(window);
-  var KEY = { BACKSPACE : 8, TAB : 9, RETURN : 13, ESC : 27, LEFT : 37, UP : 38, RIGHT : 39, DOWN : 40, HOME : 36, END : 35 }; // Keys "enum"
+  var KEY = { BACKSPACE : 8, TAB : 9, RETURN : 13, ESC : 27, LEFT : 37, UP : 38, RIGHT : 39, DOWN : 40, HOME : 36, END : 35, SPACE: 32 }; // Keys "enum"
   var defaultSettings = {
     triggerChar   : '@',
     onDataRequest : $.noop,
@@ -409,6 +409,13 @@
         case KEY.ESC:
           hideAutoComplete();
           return false;
+
+        case KEY.SPACE:
+          var mention = autocompleteItemCollection[elmActiveAutoCompleteItem.attr('data-uid')];
+          if (mention.value.toLowerCase() === (settings.triggerChar + currentDataQuery).toLowerCase()) {
+            elmActiveAutoCompleteItem.trigger('mousedown');
+            return false;
+          }
       }
 
       return true;
