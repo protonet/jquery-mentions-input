@@ -1,5 +1,5 @@
 $(function () {
-
+  return;
   $('textarea.mention').mentionsInput({
     onDataRequest:function (query, callback) {
       var data = [

@@ -64,7 +64,7 @@
 
   var MentionsInput = function (settings) {
 
-    var elmInputBox, elmInputWrapper, elmAutocompleteList, elmWrapperBox, elmMentionsOverlay, elmActiveAutoCompleteItem, elmCaretCalculator;
+    var elmInputBox, elmAutocompleteList, elmWrapperBox, elmMentionsOverlay, elmActiveAutoCompleteItem, elmCaretCalculator;
     var mentionsCollection = [];
     var autocompleteItemCollection = {};
     var inputBuffer = [];
@@ -73,7 +73,11 @@
     settings = $.extend(true, {}, defaultSettings, settings );
 
     function initWrapper() {
-      elmInputWrapper = elmInputBox.parent();
+      elmWrapperBox = elmInputBox.data("mentionsWrapper");
+      if (elmWrapperBox) {
+        return;
+      }
+      var elmInputWrapper = elmInputBox.parent();
       elmWrapperBox = $(settings.templates.wrapper());
       var hasFocus = elmInputBox.is(":focus");
       elmInputBox.wrapAll(elmWrapperBox);
@@ -81,6 +85,7 @@
         elmInputBox.focus();
       }
       elmWrapperBox = elmInputWrapper.find('> div.mentions-wrapper');
+      elmInputBox.data("mentionsWrapper", elmWrapperBox);
       elmWrapperBox.css({
         position: "relative",
         boxSizing: "border-box",
@@ -127,7 +132,15 @@
     }
 
     function initCaretCalculator() {
+      elmCaretCalculator = elmInputBox.data("mentionsCaretCalculator");
+      if (elmCaretCalculator) {
+        return;
+      }
+      
+      elmInputBox.data("mentionsCaretCalculator", elmCaretCalculator);
+      elmCaretCalculator = elmWrapperBox.find("mentions-caret-calculator");
       elmCaretCalculator = $(settings.templates.caretCalculator());
+      elmInputBox.data("mentionsCaretCalculator", elmCaretCalculator);
       elmCaretCalculator.appendTo(elmWrapperBox);
 
       elmCaretCalculator.css({
@@ -180,7 +193,13 @@
     }
 
     function initMentionsOverlay() {
+      elmMentionsOverlay = elmInputBox.data("mentionsOverlay");
+      if (elmMentionsOverlay) {
+        return;
+      }
+      
       elmMentionsOverlay = $(settings.templates.mentionsOverlay());
+      elmInputBox.data("mentionsOverlay", elmMentionsOverlay);
       elmMentionsOverlay.prependTo(elmWrapperBox);
 
       // TODO add border-radius
@@ -534,9 +553,9 @@
     return {
       init : function (domTarget) {
         elmInputBox = $(domTarget);
-        if (elmInputBox.attr('data-mentions-input') == 'true') {
-          return;
-        }
+        // if (elmInputBox.attr('data-mentions-input') == 'true') {
+        //   return;
+        // }
 
         initTextarea();
         initWrapper();
@@ -587,7 +606,11 @@
     }
 
     return this.each(function () {
-      var instance = $.data(this, 'mentionsInput') || $.data(this, 'mentionsInput', new MentionsInput(settings));
+      // if (typeof method === 'object' || !method) {
+        var instance = $.data(this, 'mentionsInput', new MentionsInput(settings))
+        instance.init.call(this, this);
+        return;
+      // }
 
       if (_.isFunction(instance[method])) {
         return instance[method].apply(this, Array.prototype.slice.call(outerArguments, 1));
