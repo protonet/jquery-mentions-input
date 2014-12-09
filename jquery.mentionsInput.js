@@ -345,7 +345,7 @@
       this.updateMentions();
 
       for (var triggerChar in this.triggers) {
-        var triggerCharIndex = _.lastIndexOf(this.buffer, triggerChar);
+        var triggerCharIndex = _.indexOf(this.buffer, triggerChar);
         if (triggerCharIndex > -1) {
           this.currentDataQuery = this.buffer.slice(triggerCharIndex + 1).join('');
           this.currentDataQuery = utils.rtrim(this.currentDataQuery);
@@ -512,6 +512,10 @@
           id      : utils.htmlEncode(item.id),
           content : utils.htmlEncode(item.name)
         })).data("uid", itemUid);
+
+        if (item.icon) {
+          $("<img>", { src: item.icon }).prependTo($item);
+        }
 
         if (index === 0) {
           this.selectItem($item);
