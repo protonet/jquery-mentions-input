@@ -23,7 +23,7 @@
     templates     : {
       wrapper          : _.template('<div class="mentions-wrapper"></div>'),
       caretCalculator  : _.template('<div class="mentions-caret-calculator"></div>'),
-      suggestionList   : _.template('<div class="mentions-suggestions-list"></div>'),
+      suggestionList   : _.template('<div class="mentions-suggestions"></div>'),
       suggestionItem   : _.template('<li><%= content %></li>'),
       mentionsOverlay  : _.template('<div class="mentions"></div>')
     }
@@ -60,11 +60,6 @@
   }
 
 
-
-
-
-
-
   var MentionsInput = function(input, settings) {
     this.$input = $(input);
     this.settings = $.extend(true, {}, defaultSettings, settings);
@@ -95,7 +90,7 @@
 
       this.$input.wrap(this.$wrapper);
       this.$wrapper = this.$input.parent();
-      
+
       this.$wrapper.css({
         position:   "relative",
         boxSizing:  "border-box",
@@ -525,7 +520,7 @@
       }.bind(this));
 
       $list.show();
-      
+
       this.showSuggestions();
     },
 
@@ -542,9 +537,15 @@
 
     reset: function() {
       this.$input.val("");
-      this.mentions = {};
+
+      _.each(this.mentions, function(arr, trigger) {
+        this.mentions[trigger] = [];
+      }.bind(this));
+
       this.updateValues();
-      this.$input.trigger("mentionreset");
+      _.each(this.triggers, function(trigger, char) {
+        this.$input.trigger("mentionreset", [[], char]);
+      }.bind(this));
     },
 
     val: function() {
