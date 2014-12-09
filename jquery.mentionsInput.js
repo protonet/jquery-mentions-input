@@ -40,27 +40,21 @@
       return _.escape(str);
     },
     setCaretPosition : function (domNode, caretPos) {
-      if (domNode.createTextRange) {
-        var range = domNode.createTextRange();
-        range.move('character', caretPos);
-        range.select();
+      if (domNode.selectionStart) {
+        domNode.focus();
+        domNode.setSelectionRange(caretPos, caretPos);
       } else {
-        if (domNode.selectionStart) {
-          domNode.focus();
-          domNode.setSelectionRange(caretPos, caretPos);
-        } else {
-          domNode.focus();
-        }
+        domNode.focus();
       }
     },
     rtrim: function(string) {
-      return string.replace(/\s+$/,"");
+      return string.replace(/\s+$/, "");
     }
   };
 
 
   function _copyStyles(styles, $from, $to) {
-    $.each(styles, function(i, style) {
+    _.each(styles, function(style) {
       $to.css(style, $from.css(style));
     });
   }
