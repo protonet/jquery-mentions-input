@@ -404,7 +404,6 @@
             this.selectItem($currentAutoCompleteItem);
           }
           return false;
-          break;
 
         case KEY.RETURN:
         case KEY.TAB:
