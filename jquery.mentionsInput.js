@@ -181,7 +181,7 @@
         "borderLeftColor"
       ], this.$input, this.$caretCalculator);
 
-      this.$caretCalculator.appendTo(this.$input);
+      this.$caretCalculator.appendTo(this.$wrapper);
     },
 
     initSuggestions: function() {
@@ -408,8 +408,8 @@
 
           if ($currentAutoCompleteItem.length) {
             this.selectItem($currentAutoCompleteItem);
-            return false;
           }
+          return false;
           break;
 
         case KEY.RETURN:
