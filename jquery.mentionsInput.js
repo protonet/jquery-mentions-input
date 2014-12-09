@@ -237,11 +237,6 @@
     },
 
     initInput: function() {
-      this.$input.css({
-        resize:     "none",
-        position:   "relative"
-      });
-
       this.$input.on({
         keydown:  this._onKeyDown.bind(this),
         keypress: this._onKeyPress.bind(this),
