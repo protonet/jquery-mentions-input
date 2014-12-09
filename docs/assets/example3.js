@@ -1,9 +1,9 @@
 $(function () {
 
 
-
-  $('textarea.mention-example3').mentionsInput({
-    onDataRequest:function (query, callback) {
+  var mentionInput = new MentionsInput('textarea.mention-example3');
+  mentionInput.add("@", {
+    fetch: function(query, callback) {
       var data = [
         { id:1, name:'Kenneth Auchenberg', 'avatar':'http://cdn0.4dots.com/i/customavatars/avatar7112_1.gif' },
         { id:2, name:'Jon Froda', 'avatar':'http://cdn0.4dots.com/i/customavatars/avatar7112_1.gif' },
@@ -16,37 +16,24 @@ $(function () {
         { id:9, name:'Kenneth Hulthin', 'avatar':'http://cdn0.4dots.com/i/customavatars/avatar7112_1.gif' }
       ];
 
-      data = _.filter(data, function(item) { return item.name.toLowerCase().indexOf(query.toLowerCase()) > -1 });
+      data = _.filter(data, function(item) { return item.name.toLowerCase().indexOf(query.toLowerCase()) > -1; });
 
       callback.call(this, data);
     }
   });
-
-  $('textarea.mention-example3').mentionsInput({
-    triggerChar: "#",
-    onDataRequest:function (query, callback) {
-      console.log(111111111)
+  
+  mentionInput.add(":", {
+    fetch: function(query, callback) {
       var data = [
-        { id:1, name:'Foo', 'avatar':'http://cdn0.4dots.com/i/customavatars/avatar7112_1.gif' },
-        { id:2, name:'Hash', 'avatar':'http://cdn0.4dots.com/i/customavatars/avatar7112_1.gif' }
+        { id:1, name:'hash', 'avatar':'http://cdn0.4dots.com/i/customavatars/avatar7112_1.gif' },
+        { id:2, name:'foo', 'avatar':'http://cdn0.4dots.com/i/customavatars/avatar7112_1.gif' },
+        { id:3, name:'bar', 'avatar':'http://cdn0.4dots.com/i/customavatars/avatar7112_1.gif' }
       ];
 
-      data = _.filter(data, function(item) { return item.name.toLowerCase().indexOf(query.toLowerCase()) > -1 });
+      data = _.filter(data, function(item) { return item.name.toLowerCase().indexOf(query.toLowerCase()) > -1; });
 
       callback.call(this, data);
     }
   });
-
-  $('.get-syntax-text').click(function() {
-    $('textarea.mention').mentionsInput('val', function(text) {
-      alert(text);
-    });
-  });
-
-  $('.get-mentions').click(function() {
-    $('textarea.mention').mentionsInput('getMentions', function(data) {
-      alert(JSON.stringify(data));
-    });
-  }) ;
 
 });

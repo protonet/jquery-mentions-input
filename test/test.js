@@ -2,7 +2,8 @@ module("jquery.mentionsInput");
 
 test("should wrap textfield", function() {
   var $message = $("#message");
-  $message.mentionsInput();
+  
+  new MentionsInput($message);
   
   ok($message.parent().is(".mentions-wrapper"), "has wrapper");
   ok($message.parent().find(".mentions").length, "has mentions overlay");
@@ -19,7 +20,7 @@ test("should copy styles from textfield to mentions layer", function() {
     "border": "3px solid red"
   });
   
-  $message.mentionsInput();
+  new MentionsInput($message);
   
   var $wrapper = $message.parent();
   var $mentionsLayer = $wrapper.find(".mentions");
@@ -38,7 +39,8 @@ test("should copy styles from textfield to mentions layer", function() {
 test("should sync textarea with mentions overlay", function() {
   var $message = $("#message");
   
-  $message.mentionsInput();
+  new MentionsInput($message);
+  
   var $wrapper = $message.parent();
   var $mentionsLayer = $wrapper.find(".mentions");
   
@@ -58,17 +60,16 @@ asyncTest("autocompleter list is correctly toggled when query matches", function
   
   var $message = $("#message");
   
-  $message.mentionsInput({
-    onDataRequest: function(query, callback) {
+  var mentionsInput = new MentionsInput($message);
+  mentionsInput.add("@", {
+    fetch: function(query, callback) {
       equal(query, "s", "correct query passed into callback");
       callback([{ name: "Spongebob Squarepants", id: 7 }]);
     }
   });
   
   var $wrapper = $message.parent();
-  var $autocompleterList = $wrapper.find(".mentions-autocomplete-list");
-  
-  ok($autocompleterList.is(":hidden"), "list is initially hidden");
+  ok(!$wrapper.find(".mentions-autocomplete-list").length, "list is initially not existing");
   
   $.each("hello @s".split(""), function(i, character) {
     var $keypress = $.Event("keypress", {
@@ -81,6 +82,7 @@ asyncTest("autocompleter list is correctly toggled when query matches", function
   });
   
   _.defer(function() {
+    var $autocompleterList = $wrapper.find(".mentions-autocomplete-list");
     ok($autocompleterList.is(":visible"), "list is visible after query matches");
     equal($autocompleterList.find("li").length, 1, "1 result is listed");
 
@@ -91,24 +93,24 @@ asyncTest("autocompleter list is correctly toggled when query matches", function
 });
 
 asyncTest("autocompleter works with minChars: 0", function() {
-  expect(5);
+  expect(4);
   
   var $message = $("#message");
   
-  $message.mentionsInput({
-    minChars: 0,
-    onDataRequest: function(query, callback) {
+  var mentionsInput = new MentionsInput($message, {
+    minChars: 0
+  });
+  
+  mentionsInput.add(":", {
+    fetch: function(query, callback) {
       equal(query, "", "correct query passed into callback");
       callback([{ name: "Spongebob Squarepants", id: 7 }]);
     }
   });
   
   var $wrapper = $message.parent();
-  var $autocompleterList = $wrapper.find(".mentions-autocomplete-list");
   
-  ok($autocompleterList.is(":hidden"), "list is initially hidden");
-  
-  $.each("hello @".split(""), function(i, character) {
+  $.each("hello :".split(""), function(i, character) {
     var $keypress = $.Event("keypress", {
       keyCode: character.charCodeAt(0)
     });
@@ -119,6 +121,8 @@ asyncTest("autocompleter works with minChars: 0", function() {
   });
   
   _.defer(function() {
+    var $autocompleterList = $wrapper.find(".mentions-autocomplete-list");
+    
     ok($autocompleterList.is(":visible"), "list is visible after query matches");
     equal($autocompleterList.find("li").length, 1, "1 result is listed");
 
@@ -132,8 +136,7 @@ test("ensures that focus on input/textarea is preserved when initializing", func
   var $message = $("#message");
   
   $message.focus();
-  $message.mentionsInput();
-  
+  new MentionsInput($message);
   ok($message.is(":focus"));
 });
 
@@ -143,14 +146,14 @@ asyncTest("autocompleter triggers mentionadd event", function() {
   
   var $message = $("#message");
   
-  $message.mentionsInput({
-    onDataRequest: function(query, callback) {
+  var mentionsInput = new MentionsInput($message);
+  mentionsInput.add("@", {
+    fetch: function(query, callback) {
       callback([{ name: "Spongebob Squarepants", id: 7 }]);
     }
   });
   
   var $wrapper = $message.parent();
-  var $autocompleterList = $wrapper.find(".mentions-autocomplete-list");
   
   $.each("hello @s".split(""), function(i, character) {
     var $keypress = $.Event("keypress", {
@@ -162,12 +165,13 @@ asyncTest("autocompleter triggers mentionadd event", function() {
   });
   
   _.defer(function() {
-    $message.on("mentionadd", function(event, mentions) {
+    $message.on("mentionadd", function(event, mentions, trigger) {
       ok(true, "mention added");
       deepEqual(mentions, [{ name: "Spongebob Squarepants", id: 7, value: "Spongebob Squarepants" }], "Proper mentions array passed into event handler");
       start();
     });
-    
+
+    var $autocompleterList = $wrapper.find(".mentions-autocomplete-list");
     $autocompleterList.find("li").mousedown();
   });
 });
@@ -177,14 +181,14 @@ asyncTest("autocompleter triggers mentionremove event", function() {
   
   var $message = $("#message");
   
-  $message.mentionsInput({
-    onDataRequest: function(query, callback) {
+  var mentionsInput = new MentionsInput($message);
+  mentionsInput.add("@", {
+    fetch: function(query, callback) {
       callback([{ name: "Spongebob Squarepants", id: 7 }]);
     }
   });
   
   var $wrapper = $message.parent();
-  var $autocompleterList = $wrapper.find(".mentions-autocomplete-list");
   
   $.each("hello @s".split(""), function(i, character) {
     var $keypress = $.Event("keypress", {
@@ -196,6 +200,7 @@ asyncTest("autocompleter triggers mentionremove event", function() {
   });
   
   _.defer(function() {
+    var $autocompleterList = $wrapper.find(".mentions-autocomplete-list");
     $autocompleterList.find("li").mousedown();
     
     $message.on("mentionremove", function(event, mentions) {
@@ -209,26 +214,29 @@ asyncTest("autocompleter triggers mentionremove event", function() {
 });
 
 test("reset triggers mentionreset event", function() {
-  
-  var $message = $("#message"); 
-  $message.mentionsInput({
-    onDataRequest: function(query, callback) {
+  var $message = $("#message");
+  $message.on("mentionreset", function(event, mentions) {
+    ok(true, "mention reset");
+  });
+  var mentionsInput = new MentionsInput($message);
+  mentionsInput.add("@", {
+    fetch: function(query, callback) {
       callback([{ name: "Spongebob Squarepants", id: 7 }]);
     }
   });
-  $message.on("mentionreset", function(event, mentions) {
-    ok(true, "mention reset");
-    deepEqual(mentions, [], "Proper mentions array passed into event handler");
-  });
-  
-  $message.mentionsInput("reset");  
+  mentionsInput.reset();
 });
 
 
 test("setMentions triggers mentionadd event", function() {
   
-  var $message = $("#message"); 
-  $message.mentionsInput();
+  var $message = $("#message");
+  var mentionsInput = new MentionsInput($message);
+  mentionsInput.add("@", {
+    fetch: function(query, callback) {
+      callback([{ name: "Spongebob Squarepants", id: 7 }]);
+    }
+  });
   
   var collection = [{ name: "Spongebob Squarepants", id: 7, value: "Spongebob Squarepants" }];
   
@@ -236,6 +244,5 @@ test("setMentions triggers mentionadd event", function() {
     equal(collection, mentions, "Proper mentions array passed into mentionadd event handler");
   });
   
-  var instance = $message.data("mentionsInput");
-  instance.setMentions(collection);
+  mentionsInput.setMentions("@", collection);
 });
