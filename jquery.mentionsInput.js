@@ -70,12 +70,9 @@
     this.currentDataQuery = "";
     this.$activeItem = null;
 
-
     this.initInput();
     this.initWrapper();
-    this.initMentions();
   };
-
 
   MentionsInput.prototype = {
     add: function(trigger, triggerSettings) {
@@ -185,6 +182,10 @@
     },
 
     initMentions: function() {
+      if (this.$mentions) {
+        return;
+      }
+
       this.$mentions = $(this.settings.templates.mentionsOverlay());
 
       // TODO add border-radius
@@ -237,6 +238,11 @@
     },
 
     initInput: function() {
+      this.$input.css({
+        resize:   "none",
+        position: "relative"
+      });
+
       this.$input.on({
         keydown:  this._onKeyDown.bind(this),
         keypress: this._onKeyPress.bind(this),
@@ -266,12 +272,8 @@
         }.bind(this));
       }.bind(this));
 
-      // TODO: Adding white-space: pre; might make this obsolete
-      mentionText = mentionText.replace(/\n/g, '<br>');
-      mentionText = mentionText.replace(/<br>$/g, '<br>&nbsp;');
-      mentionText = mentionText.replace(/ {2}/g, '&nbsp; ');
-
       this.$input.data("messageText", syntaxMessage);
+      this.initMentions();
       this.$mentions.html(mentionText);
     },
 
@@ -462,8 +464,6 @@
       val = val.substr(0, pos) + placeholder + val.substr(pos);
       val = utils.htmlEncode(val);
       val = val.replace(placeholder, "<span>.</span>");
-      val = val.replace(/\n/g, '<br>');
-      val = val.replace(/<br>$/g, '<br>&nbsp;');
 
       this.initCaretCalculator();
 
