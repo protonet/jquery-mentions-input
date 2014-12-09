@@ -69,7 +69,7 @@ asyncTest("autocompleter list is correctly toggled when query matches", function
   });
   
   var $wrapper = $message.parent();
-  ok(!$wrapper.find(".mentions-autocomplete-list").length, "list is initially not existing");
+  ok(!$wrapper.find(".mentions-suggestions-list").length, "list is initially not existing");
   
   $.each("hello @s".split(""), function(i, character) {
     var $keypress = $.Event("keypress", {
@@ -82,7 +82,7 @@ asyncTest("autocompleter list is correctly toggled when query matches", function
   });
   
   _.defer(function() {
-    var $autocompleterList = $wrapper.find(".mentions-autocomplete-list");
+    var $autocompleterList = $wrapper.find(".mentions-suggestions-list");
     ok($autocompleterList.is(":visible"), "list is visible after query matches");
     equal($autocompleterList.find("li").length, 1, "1 result is listed");
 
@@ -121,7 +121,7 @@ asyncTest("autocompleter works with minChars: 0", function() {
   });
   
   _.defer(function() {
-    var $autocompleterList = $wrapper.find(".mentions-autocomplete-list");
+    var $autocompleterList = $wrapper.find(".mentions-suggestions-list");
     
     ok($autocompleterList.is(":visible"), "list is visible after query matches");
     equal($autocompleterList.find("li").length, 1, "1 result is listed");
@@ -171,7 +171,7 @@ asyncTest("autocompleter triggers mentionadd event", function() {
       start();
     });
 
-    var $autocompleterList = $wrapper.find(".mentions-autocomplete-list");
+    var $autocompleterList = $wrapper.find(".mentions-suggestions-list");
     $autocompleterList.find("li").mousedown();
   });
 });
@@ -200,7 +200,7 @@ asyncTest("autocompleter triggers mentionremove event", function() {
   });
   
   _.defer(function() {
-    var $autocompleterList = $wrapper.find(".mentions-autocomplete-list");
+    var $autocompleterList = $wrapper.find(".mentions-suggestions-list");
     $autocompleterList.find("li").mousedown();
     
     $message.on("mentionremove", function(event, mentions) {

@@ -21,11 +21,11 @@
       autoCompleteItemActive: "selected"
     },
     templates     : {
-      wrapper                    : _.template('<div class="mentions-wrapper"></div>'),
-      caretCalculator            : _.template('<div class="mentions-caret-calculator"></div>'),
-      autocompleteList           : _.template('<div class="mentions-autocomplete-list"></div>'),
-      autocompleteListItem       : _.template('<li><%= content %></li>'),
-      mentionsOverlay            : _.template('<div class="mentions"></div>')
+      wrapper          : _.template('<div class="mentions-wrapper"></div>'),
+      caretCalculator  : _.template('<div class="mentions-caret-calculator"></div>'),
+      suggestionList   : _.template('<div class="mentions-suggestions-list"></div>'),
+      suggestionItem   : _.template('<li><%= content %></li>'),
+      mentionsOverlay  : _.template('<div class="mentions"></div>')
     }
   };
 
@@ -189,7 +189,7 @@
         return;
       }
 
-      this.$suggestions = $(this.settings.templates.autocompleteList())
+      this.$suggestions = $(this.settings.templates.suggestionList())
         .css({ position: "absolute" })
         .appendTo(this.$wrapper)
         .on("mousedown", "li", this._onSuggestionClick.bind(this));
@@ -520,7 +520,7 @@
 
         this.suggestions[itemUid] = _.extend({}, item, { value: item.name });
 
-        var $item = $(this.settings.templates.autocompleteListItem({
+        var $item = $(this.settings.templates.suggestionItem({
           id      : utils.htmlEncode(item.id),
           content : utils.htmlEncode(item.name)
         })).data("uid", itemUid);
