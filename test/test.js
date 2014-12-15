@@ -4,6 +4,7 @@ test("should wrap textfield", function() {
   var $message = $("#message");
   
   new MentionsInput($message);
+  $message.trigger("input");
   
   ok($message.parent().is(".mentions-wrapper"), "has wrapper");
   ok($message.parent().find(".mentions").length, "has mentions overlay");
@@ -22,9 +23,10 @@ test("should copy styles from textfield to mentions layer", function() {
   
   new MentionsInput($message);
   
+  $message.trigger("input");
+  
   var $wrapper = $message.parent();
   var $mentionsLayer = $wrapper.find(".mentions");
-  
   equal($message.css("font-size"), $mentionsLayer.css("font-size"), "same font-size");
   equal($message.css("line-height"), $mentionsLayer.css("line-height"), "same line-height");
   
@@ -40,6 +42,7 @@ test("should sync textarea with mentions overlay", function() {
   var $message = $("#message");
   
   new MentionsInput($message);
+  $message.trigger("input");
   
   var $wrapper = $message.parent();
   var $mentionsLayer = $wrapper.find(".mentions");
@@ -48,11 +51,11 @@ test("should sync textarea with mentions overlay", function() {
   
   $message.val("foo\nbar").trigger("input");
   
-  equal($mentionsLayer.html().toLowerCase(), "foo<br>bar", "correctly turned \\n into <br>");
+  equal($mentionsLayer.html().toLowerCase(), "foo\nbar");
 
   $message.val("foo\nbar  ").trigger("input");
   
-  equal($mentionsLayer.html().toLowerCase(), "foo<br>bar&nbsp; ", "correctly transformed double white space");
+  equal($mentionsLayer.html().toLowerCase(), "foo\nbar  ");
 });
 
 asyncTest("autocompleter list is correctly toggled when query matches", function() {
@@ -88,6 +91,38 @@ asyncTest("autocompleter list is correctly toggled when query matches", function
 
     equal($autocompleterList.find("li").text(), "Spongebob Squarepants", "Correct content is rendered into the list");
     
+    start();
+  });
+});
+
+asyncTest("should not show list when trigger is not preceeded by a white space", function() {
+  expect(1);
+  
+  var $message = $("#message");
+  
+  var mentionsInput = new MentionsInput($message);
+  
+  var $wrapper = $message.parent();
+  
+  mentionsInput.add("@", {
+    fetch: function(query, callback) {
+      ok(false, "should not be called");
+    }
+  });
+  
+  $.each("foo@s".split(""), function(i, character) {
+    var $keypress = $.Event("keypress", {
+      keyCode: character.charCodeAt(0)
+    });
+    
+    $message.trigger($keypress);
+    
+    $message.val($message.val() + character).trigger("input");
+  });
+  
+  _.defer(function() {
+    var $autocompleterList = $wrapper.find(".mentions-suggestions");
+    ok(!$autocompleterList.is(":visible"), "list is not visible even though query matches");
     start();
   });
 });

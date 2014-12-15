@@ -257,7 +257,7 @@
       _.each(this.mentions, function(mentions, trigger) {
         _.each(mentions, function(mention) {
           var textSyntax = this.triggers[trigger].mentionItemSyntax(mention);
-          syntaxMessage = syntaxMessage.replace(mention.value, textSyntax);
+          syntaxMessage = syntaxMessage.split(mention.value).join(textSyntax);
         }.bind(this));
       }.bind(this));
 
@@ -268,11 +268,11 @@
           var textSyntax = utils.htmlEncode(this.triggers[trigger].mentionItemSyntax(formattedMention));
           formattedMention.value = utils.htmlEncode(formattedMention.value);
           var textHighlight = this.triggers[trigger].mentionItemHighlight(formattedMention);
-          mentionText = mentionText.replace(textSyntax, textHighlight);
+          mentionText = mentionText.split(textSyntax).join(textHighlight);
         }.bind(this));
       }.bind(this));
 
-      this.$input.data("messageText", syntaxMessage);
+      this._val = syntaxMessage;
       this.initMentions();
       this.$mentions.html(mentionText);
     },
@@ -309,8 +309,13 @@
 
       var start = currentMessage.substr(0, startCaretPosition);
       var end = currentMessage.substr(currentCaretPosition, currentMessage.length);
+      var updatedMessageText = start + mention.value + ' ' + end;
       var startEndIndex = (start + mention.value).length + 1;
 
+      this._add(mention, trigger, updatedMessageText, startEndIndex);
+    },
+
+    _add: function(mention, trigger, newMessage, caretPosition) {
       this.mentions[trigger].push(mention);
 
       // Cleaning before inserting the value, otherwise auto-complete would be triggered with "old" inputbuffer
@@ -318,16 +323,25 @@
       this.currentDataQuery = "";
       this.hideSuggestions();
 
-      // Mentions & syntax message
-      var updatedMessageText = start + mention.value + ' ' + end;
-      this.$input.val(updatedMessageText);
+      this.$input.val(newMessage);
       this.updateValues();
 
       // Set correct focus and selection
       this.$input.focus();
-      utils.setCaretPosition(this.$input[0], startEndIndex);
+      utils.setCaretPosition(this.$input[0], caretPosition);
 
       this.$input.trigger("mentionadd", [this.mentions[trigger], trigger]);
+    },
+
+    insert: function(trigger, mention) {
+      var currentMessage = this.$input.val();
+      var selectionEnd = this.$input[0].selectionEnd;
+      var start = currentMessage.substr(0, selectionEnd);
+      var end = currentMessage.substr(selectionEnd);
+      var updatedMessageText = start + mention.value + ' ' + end;
+      var startEndIndex = (start + mention.value).length + 1;
+
+      this._add(mention, trigger, updatedMessageText, startEndIndex);
     },
 
     _onSuggestionClick: function(event) {
@@ -342,7 +356,13 @@
       this.updateMentions();
 
       for (var triggerChar in this.triggers) {
-        var triggerCharIndex = _.indexOf(this.buffer, triggerChar);
+        // get triggerChar that has a white space in front
+        var triggerCharIndex = _.lastIndexOf(this.buffer, triggerChar);
+        var previousChar = this.buffer[triggerCharIndex - 1];
+        if (previousChar && !previousChar.match(/\s|\(|\[/)) {
+          triggerCharIndex = _.lastIndexOf(this.buffer, triggerChar, triggerCharIndex - 1);
+        }
+        
         if (triggerCharIndex > -1) {
           this.currentDataQuery = this.buffer.slice(triggerCharIndex + 1).join('');
           this.currentDataQuery = utils.rtrim(this.currentDataQuery);
@@ -399,7 +419,7 @@
 
         case KEY.RETURN:
         case KEY.TAB:
-          if (this.$activeItem && this.$activeItem.length) {
+          if (this.$activeItem && this.$activeItem.length && !event.shiftKey && !event.altKey) {
             this.$activeItem.trigger("mousedown");
             return false;
           }
@@ -482,12 +502,6 @@
     },
 
     populateDropdown: function(query, trigger, results) {
-      // Filter items that have already been mentioned
-      var mentionValues = _.pluck(this.mentions[trigger], 'value');
-      results = _.reject(results, function (item) {
-        return _.include(mentionValues, item.name);
-      });
-
       if (!results.length) {
         this.hideSuggestions();
         return;
@@ -548,11 +562,11 @@
     },
 
     val: function() {
-      return this.$input.data("messageText") || this.$input.val();
+      return this._val || this.$input.val();
     },
 
     getMentions: function(trigger) {
-      return this.mentions[trigger];
+      return trigger ? this.mentions[trigger] : this.mentions;
     },
 
     setMentions: function(trigger, mentions) {
