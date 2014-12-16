@@ -46,9 +46,6 @@
       } else {
         domNode.focus();
       }
-    },
-    rtrim: function(string) {
-      return string.replace(/\s+$/, "");
     }
   };
 
@@ -65,7 +62,6 @@
     this.settings = $.extend(true, {}, defaultSettings, settings);
     this.triggers = {};
     this.mentions = {};
-    this.buffer = [];
     this.suggestions = [];
     this.currentDataQuery = "";
     this.$activeItem = null;
@@ -245,9 +241,7 @@
 
       this.$input.on({
         keydown:  this._onKeyDown.bind(this),
-        keypress: this._onKeyPress.bind(this),
         input:    this._onInput.bind(this),
-        click:    this.resetBuffer.bind(this),
         blur:     this.hideSuggestions.bind(this)
       });
     },
@@ -275,10 +269,6 @@
       this._val = syntaxMessage;
       this.initMentions();
       this.$mentions.html(mentionText);
-    },
-
-    resetBuffer: function() {
-      this.buffer = [];
     },
 
     updateMentions: function() {
@@ -312,14 +302,14 @@
       var updatedMessageText = start + mention.value + ' ' + end;
       var startEndIndex = (start + mention.value).length + 1;
 
-      this._add(mention, trigger, updatedMessageText, startEndIndex);
+      this._add(trigger, mention, updatedMessageText, startEndIndex);
     },
 
-    _add: function(mention, trigger, newMessage, caretPosition) {
-      this.mentions[trigger].push(mention);
+    _add: function(trigger, mention, newMessage, caretPosition) {
+      if (!this._hasMention(trigger, mention)) {
+        this.mentions[trigger].push(mention);
+      }
 
-      // Cleaning before inserting the value, otherwise auto-complete would be triggered with "old" inputbuffer
-      this.resetBuffer();
       this.currentDataQuery = "";
       this.hideSuggestions();
 
@@ -333,6 +323,12 @@
       this.$input.trigger("mentionadd", [this.mentions[trigger], trigger]);
     },
 
+    _hasMention: function(trigger, mentionToSearch) {
+      return _.find(this.mentions[trigger], function(mention) {
+        return mention.value === mentionToSearch.value;
+      });
+    },
+
     insert: function(trigger, mention) {
       var currentMessage = this.$input.val();
       var selectionEnd = this.$input[0].selectionEnd;
@@ -341,7 +337,7 @@
       var updatedMessageText = start + mention.value + ' ' + end;
       var startEndIndex = (start + mention.value).length + 1;
 
-      this._add(mention, trigger, updatedMessageText, startEndIndex);
+      this._add(trigger, mention, updatedMessageText, startEndIndex);
     },
 
     _onSuggestionClick: function(event) {
@@ -355,41 +351,29 @@
       this.updateValues();
       this.updateMentions();
 
-      for (var triggerChar in this.triggers) {
-        // get triggerChar that has a white space in front
-        var triggerCharIndex = _.lastIndexOf(this.buffer, triggerChar);
-        var previousChar = this.buffer[triggerCharIndex - 1];
-        if (previousChar && !previousChar.match(/\s|\(|\[/)) {
-          triggerCharIndex = _.lastIndexOf(this.buffer, triggerChar, triggerCharIndex - 1);
-        }
-        
-        if (triggerCharIndex > -1) {
-          this.currentDataQuery = this.buffer.slice(triggerCharIndex + 1).join('');
-          this.currentDataQuery = utils.rtrim(this.currentDataQuery);
-          _.defer(this.search.bind(this, this.currentDataQuery, triggerChar));
-          break;
-        }
-      }
-    },
+      var val = this.$input.val();
+      var buffer = val.substr(0, this.$input[0].selectionStart);
 
-    _onKeyPress: function(event) {
-      if (event.keyCode !== KEY.BACKSPACE) {
-        var typedValue = String.fromCharCode(event.which || event.keyCode);
-        this.buffer.push(typedValue);
+      var indexes = _.map(this.triggers, function(config, trigger) {
+        return buffer.lastIndexOf(trigger);
+      });
+
+      var triggerCharIndex = Math.max.apply(Math, indexes);
+      var triggerChar = buffer.charAt(triggerCharIndex);
+      var previousChar = buffer.charAt(triggerCharIndex - 1);
+      if (previousChar && !previousChar.match(/\s|\(|\[/)) {
+        triggerCharIndex = buffer.lastIndexOf(triggerChar, triggerCharIndex - 1);
+      }
+
+      if (triggerCharIndex > -1) {
+        this.currentDataQuery = buffer.slice(triggerCharIndex + 1);
+        _.defer(this.search.bind(this, this.currentDataQuery, triggerChar));
       }
     },
 
     _onKeyDown: function(event) {
       var keyCode = event.keyCode;
-      // This also matches HOME/END on OSX which is CMD+LEFT, CMD+RIGHT
-      if (keyCode == KEY.LEFT || keyCode == KEY.RIGHT || keyCode == KEY.HOME || keyCode == KEY.END) {
-        // Defer execution to ensure carat pos has changed after HOME/END keys
-        _.defer(this.resetBuffer.bind(this));
-        return;
-      }
-
       if (keyCode == KEY.BACKSPACE) {
-        this.buffer = this.buffer.slice(0, -1 + this.buffer.length); // Can't use splice, not available in IE
         _.defer(this.hideSuggestions.bind(this));
         return;
       }
@@ -571,7 +555,6 @@
 
     setMentions: function(trigger, mentions) {
       this.mentions[trigger] = mentions;
-      this.resetBuffer();
       this.updateValues();
       if (mentions.length) {
         this.$input.trigger("mentionadd", [this.mentions[trigger], trigger]);
