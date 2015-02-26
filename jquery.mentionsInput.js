@@ -268,7 +268,7 @@
 
       this._val = syntaxMessage;
       this.initMentions();
-      this.$mentions.html(mentionText);
+      this.$mentions.html(mentionText + "\n");
     },
 
     updateMentions: function() {
