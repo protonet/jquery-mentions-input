@@ -40,11 +40,10 @@
       return _.escape(str);
     },
     setCaretPosition : function (domNode, caretPos) {
-      if (domNode.selectionStart) {
-        domNode.focus();
-        domNode.setSelectionRange(caretPos, caretPos);
-      } else {
-        domNode.focus();
+      domNode.focus();
+      if ("selectionStart" in domNode) {
+        domNode.selectionStart = caretPos;
+        domNode.selectionEnd = caretPos;
       }
     }
   };
