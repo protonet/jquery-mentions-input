@@ -360,8 +360,9 @@
       var triggerCharIndex = Math.max.apply(Math, indexes);
       var triggerChar = buffer.charAt(triggerCharIndex);
       var previousChar = buffer.charAt(triggerCharIndex - 1);
+
       if (previousChar && !previousChar.match(/\s|\(|\[/)) {
-        triggerCharIndex = buffer.lastIndexOf(triggerChar, triggerCharIndex - 1);
+        triggerCharIndex = buffer.lastIndexOf(this.currentTrigger, triggerCharIndex - 1);
       }
 
       if (triggerCharIndex > -1) {
