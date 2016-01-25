@@ -361,8 +361,8 @@
       var triggerChar = buffer.charAt(triggerCharIndex);
       var previousChar = buffer.charAt(triggerCharIndex - 1);
 
-      if (previousChar && this.currentTrigger && !previousChar.match(/\s|\(|\[/)) {
-        triggerCharIndex = buffer.lastIndexOf(this.currentTrigger, triggerCharIndex - 1);
+      if (previousChar && !previousChar.match(/\s|\(|\[/)) {
+        triggerCharIndex = this.currentTrigger ? buffer.lastIndexOf(this.currentTrigger, triggerCharIndex - 1) : -1;
       }
 
       if (triggerCharIndex > -1) {
