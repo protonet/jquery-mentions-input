@@ -319,7 +319,7 @@
       this.$input.focus();
       utils.setCaretPosition(this.$input[0], caretPosition);
 
-      this.$input.trigger("mentionadd", [this.mentions[trigger], trigger]);
+      this.$input.trigger("mentionadd", [mention, trigger]);
     },
 
     _hasMention: function(trigger, mentionToSearch) {
@@ -557,7 +557,7 @@
       this.mentions[trigger] = mentions;
       this.updateValues();
       if (mentions.length) {
-        this.$input.trigger("mentionadd", [this.mentions[trigger], trigger]);
+        this.$input.trigger("mentionsadd", [this.mentions[trigger], trigger]);
       }
     }
   };
